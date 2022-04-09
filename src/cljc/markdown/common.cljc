@@ -26,11 +26,11 @@
   [text state]
   (if-let [matches (re-seq (re-pattern (str escape-delimiter "\\d+" escape-delimiter)) text)]
     (recur
-      (reduce
-        (fn [s r]
-          (string/replace s (re-pattern r) #(get (:frozen-strings state) % %)))
-        text matches)
-      (update state :frozen-strings #(apply dissoc % matches)))
+     (reduce
+      (fn [s r]
+        (string/replace s (re-pattern r) #(get (:frozen-strings state) % %)))
+      text matches)
+     (update state :frozen-strings #(apply dissoc % matches)))
     [text state]))
 
 (defn thaw-strings
@@ -178,12 +178,23 @@
   (let [num-hashes (count (filter #(not= \space %) (take-while #(or (= \# %) (= \space %)) (seq text))))]
     (when (pos? num-hashes) num-hashes)))
 
+(defn strip-non-alphanum [s]
+  (string/replace s #"[^a-zA-Z0-9 ]" ""))
+
+;; This has a problem that it removes tags regardless of an end tag.
+(defn strip-tags [s]
+  (string/replace s #"<[/a-zA-Z]+>" ""))
+
 (defn make-heading [text heading-anchors]
   (when-let [heading (heading-level text)]
     (let [text (heading-text text)]
       ;; We do not need to process the id string, HTML5 ids can contain anything except the space character.
       ;; (https://www.w3.org/TR/html5/dom.html#the-id-attribute)
-      (str "<h" heading (when heading-anchors (str " id=\"" (-> text string/lower-case (string/replace " " "&#95;")) "\"")) ">"
+      (str "<h" heading (when heading-anchors (str " id=\"" (-> text
+                                                                string/lower-case
+                                                                strip-tags
+                                                                strip-non-alphanum
+                                                                (string/replace " " "&#95;")) "\"")) ">"
            text "</h" heading ">"))))
 
 (defn dashes [text state]
@@ -193,7 +204,7 @@
          (string/replace #"\-\-\-" "&mdash;")
          (string/replace #"\-\-" "&ndash;")
          (string/replace #"<code>.*</code>"
-                         (fn [s](-> s
-                                    (string/replace #"&mdash;" "---")
-                                    (string/replace #"&ndash;" "--"))))))
+                         (fn [s] (-> s
+                                     (string/replace #"&mdash;" "---")
+                                     (string/replace #"&ndash;" "--"))))))
    state])

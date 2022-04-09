@@ -28,11 +28,14 @@
 
 (deftest heading-with-complex-anchor
   (is (=
-        "<h3 id=\"foo&#95;bar&#95;baz\">foo bar BAz</h3><p>some text</p>"
-        (entry-function "###foo bar BAz\nsome text" :heading-anchors true)))
+       "<h3 id=\"foo&#95;bar&#95;baz\">foo bar BAz</h3><p>some text</p>"
+       (entry-function "###foo bar BAz\nsome text" :heading-anchors true)))
   (is (=
-        "<h3 id=\"foo&#95;bar&#95;baz\">foo bar BAz</h3><p>some text</p>"
-        (entry-function "###foo bar BAz##\nsome text" :heading-anchors true))))
+       "<h3 id=\"foo&#95;bar&#95;baz\">foo bar BAz</h3><p>some text</p>"
+       (entry-function "###foo bar BAz##\nsome text" :heading-anchors true)))
+  (is (=
+       "<h3 id=\"foo&#95;bar&#95;baz\">foo bar <code>:BAz</code></h3><p>some text</p>"
+       (entry-function "###foo bar `:BAz`\nsome text" :heading-anchors true))))
 
 (deftest br
   (is (= "<p>foo<br /></p>" (entry-function "foo  "))))
@@ -63,7 +66,7 @@
 
 (deftest bold-inside-a-list
   (is (= "<ol><li>chickens.</li></ol><p> <strong>See more: <a href='http://cluck.cluck.com'>Cluck Cluck</a></strong> </p>"
-      (entry-function "1. chickens. \n\n **See more: [Cluck Cluck](http://cluck.cluck.com)** \n\n"))))
+         (entry-function "1. chickens. \n\n **See more: [Cluck Cluck](http://cluck.cluck.com)** \n\n"))))
 
 (deftest em-inside-strong
   (is (= "<p><strong>foo<em>bar</em>baz</strong></p>" (entry-function "**foo*bar*baz**"))))
@@ -111,11 +114,11 @@
 
 (deftest ul-with-codeblock
   (is (= "<ul><li>foo</li><li>bar<pre><code>  &#40;defn foo &#91;&#93;\n  bar&#41;\n  </code></pre></li><li>baz</li><li>more text</li></ul>"
-        (entry-function
+         (entry-function
           "\n* foo\n* bar\n  ```\n  (defn foo []\n  bar)\n  ```\n*  baz\n*  more text\n")))
   (is (= "<ul><li>foo</li><li>bar<pre><code>  &#40;defn foo &#91;&#93;\n  bar&#41;\n  </code></pre>  text</li><li>baz</li><li>more text</li></ul>"
          (entry-function
-           "\n* foo\n* bar\n  ```\n  (defn foo []\n  bar)\n  ```\n  text\n*  baz\n*  more text\n"))))
+          "\n* foo\n* bar\n  ```\n  (defn foo []\n  bar)\n  ```\n  text\n*  baz\n*  more text\n"))))
 
 (deftest ul-followed-by-multiline-paragraph
   (is (= "<ul><li>foo</li><li>bar</li><li>baz</li></ul><p>paragraph</p>"
@@ -144,9 +147,9 @@
 
 (deftest multilist
   (is (=
-        "<ul><li>foo</li><li>bar<ul><li>baz<ol><li>foo</li><li>bar</li></ol></li><li>fuzz<ul><li>blah</li><li>blue</li></ul></li></ul></li><li>brass</li></ul>"
-        (entry-function
-         "* foo
+       "<ul><li>foo</li><li>bar<ul><li>baz<ol><li>foo</li><li>bar</li></ol></li><li>fuzz<ul><li>blah</li><li>blue</li></ul></li></ul></li><li>brass</li></ul>"
+       (entry-function
+        "* foo
 * bar
 
    * baz
@@ -188,7 +191,7 @@
          (entry-function "```clojure\n(fn [x & xs]\n  (str \"x\"))\n```")))
   (is (= "<pre><code class=\"nohighlight\">------------\n============\n    ------------\n    ============\n</code></pre>"
          (entry-function
-           "
+          "
 ```nohighlight
 ------------
 ============
@@ -315,8 +318,8 @@
 
 (deftest escaped-characters
   (is
-    (= "<p>&#94;&#42;&#8216;&#95;&#123;&#125;&#91;&#93;<em>foo</em><code>test</code><i>bar</i>{x}[y]</p>"
-       (entry-function "\\^\\*\\`\\_\\{\\}\\[\\]*foo*`test`_bar_{x}[y]"))))
+   (= "<p>&#94;&#42;&#8216;&#95;&#123;&#125;&#91;&#93;<em>foo</em><code>test</code><i>bar</i>{x}[y]</p>"
+      (entry-function "\\^\\*\\`\\_\\{\\}\\[\\]*foo*`test`_bar_{x}[y]"))))
 
 (deftest paragraph-after-list
   (is (= "<ol><li>a</li><li>b</li></ol><p>test <strong>bold</strong> and <em>italic</em></p>"
@@ -385,38 +388,38 @@
 
 (deftest table-row->str
   (is (= (tables/table-row->str
-           [{:text "contents 1"} {:text "contents 2"} {:text "contents 3"} {:text "contents 4"}]
-           true)
+          [{:text "contents 1"} {:text "contents 2"} {:text "contents 3"} {:text "contents 4"}]
+          true)
          "<th>contents 1</th><th>contents 2</th><th>contents 3</th><th>contents 4</th>"))
   (is (= (tables/table-row->str
-           [{:text "contents 1"} {:text "contents 2"} {:text "contents 3"} {:text "contents 4"}]
-           false)
+          [{:text "contents 1"} {:text "contents 2"} {:text "contents 3"} {:text "contents 4"}]
+          false)
          "<td>contents 1</td><td>contents 2</td><td>contents 3</td><td>contents 4</td>"))
   (is (= (tables/table-row->str
-           [{:text "contents 1" :alignment :left}
-            {:text "contents 2" :alignment :center}
-            {:text "contents 3" :alignment :right}
-            {:text "contents 4"}]
-           false)
+          [{:text "contents 1" :alignment :left}
+           {:text "contents 2" :alignment :center}
+           {:text "contents 3" :alignment :right}
+           {:text "contents 4"}]
+          false)
          "<td style='text-align:left'>contents 1</td><td style='text-align:center'>contents 2</td><td style='text-align:right'>contents 3</td><td>contents 4</td>")))
 
 (deftest table->str
   (is (= (tables/table->str
-           {:alignment-seq
-                  [{:alignment :left} {:alignment :center} {:alignment :right} {:alignment nil}]
-            :data [[{:text "Header 1"}
-                    {:text "Header 2"}
-                    {:text "Header 3"}
-                    {:text "Header 4"}]
-                   [{:text "contents 1"}
-                    {:text "contents 2"}
-                    {:text "contents 3"}
-                    {:text "contents 4"}]]})
+          {:alignment-seq
+           [{:alignment :left} {:alignment :center} {:alignment :right} {:alignment nil}]
+           :data [[{:text "Header 1"}
+                   {:text "Header 2"}
+                   {:text "Header 3"}
+                   {:text "Header 4"}]
+                  [{:text "contents 1"}
+                   {:text "contents 2"}
+                   {:text "contents 3"}
+                   {:text "contents 4"}]]})
          "<table><thead><tr><th style='text-align:left'>Header 1</th><th style='text-align:center'>Header 2</th><th style='text-align:right'>Header 3</th><th>Header 4</th></tr></thead><tbody><tr><td style='text-align:left'>contents 1</td><td style='text-align:center'>contents 2</td><td style='text-align:right'>contents 3</td><td>contents 4</td></tr></tbody></table>")))
 
 (deftest divider-seq->alignment
   (is (= (tables/divider-seq->alignment
-           [{:text "-----"} {:text ":-----"} {:text "-----:"} {:text ":-----:"}])
+          [{:text "-----"} {:text ":-----"} {:text "-----:"} {:text ":-----:"}])
          [nil {:alignment :left} {:alignment :right} {:alignment :center}])))
 
 (deftest n-dash
