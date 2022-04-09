@@ -194,7 +194,7 @@
                                                                 string/lower-case
                                                                 strip-tags
                                                                 strip-non-alphanum
-                                                                (string/replace " " "&#95;")) "\"")) ">"
+                                                                (string/replace " " "-")) "\"")) ">"
            text "</h" heading ">"))))
 
 (defn dashes [text state]
