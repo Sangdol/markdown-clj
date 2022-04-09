@@ -178,8 +178,9 @@
   (let [num-hashes (count (filter #(not= \space %) (take-while #(or (= \# %) (= \space %)) (seq text))))]
     (when (pos? num-hashes) num-hashes)))
 
-(defn strip-non-alphanum [s]
-  (string/replace s #"[^a-zA-Z0-9 ]" ""))
+;; There should be more valid chars than this, but this is a good start.
+(defn strip-invalid-characters [s]
+  (string/replace s #"[^a-zA-Z0-9 -]" ""))
 
 ;; This has a problem that it removes tags regardless of an end tag.
 (defn strip-tags [s]
@@ -193,7 +194,7 @@
       (str "<h" heading (when heading-anchors (str " id=\"" (-> text
                                                                 string/lower-case
                                                                 strip-tags
-                                                                strip-non-alphanum
+                                                                strip-invalid-characters
                                                                 (string/replace " " "-")) "\"")) ">"
            text "</h" heading ">"))))
 

@@ -35,7 +35,10 @@
        (entry-function "###foo bar BAz##\nsome text" :heading-anchors true)))
   (is (=
        "<h3 id=\"foo-bar-baz\">foo bar <code>:BAz</code></h3><p>some text</p>"
-       (entry-function "###foo bar `:BAz`\nsome text" :heading-anchors true))))
+       (entry-function "###foo bar `:BAz`\nsome text" :heading-anchors true)))
+  (is (=
+       "<h3 id=\"foo-foo-bar-baz\">foo-foo bar BAz</h3><p>some text</p>"
+       (entry-function "###foo-foo bar BAz\nsome text" :heading-anchors true))))
 
 (deftest br
   (is (= "<p>foo<br /></p>" (entry-function "foo  "))))
